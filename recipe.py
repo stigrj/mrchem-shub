@@ -68,7 +68,11 @@ Stage0 += hpccm.primitives.baseimage(image='ubuntu:18.04', _as='build')
 compiler = hpccm.building_blocks.gnu()
 Stage0 += compiler
 
+enable_mpi="OFF"
+cxx_compiler="g++"
 if args.openmpi_version:
+    enable_mpi="ON"
+    cxx_compiler="mpicxx"
     # (M)OFED
     if args.mofed:
         Stage0 += hpccm.building_blocks.mlnx_ofed()
@@ -98,10 +102,10 @@ Stage0 += hpccm.building_blocks.python(python2=False, python3=True)
 # MRChem
 Stage0 += hpccm.building_blocks.packages(apt=['patch'])
 Stage0 += hpccm.building_blocks.generic_cmake(cmake_opts=['-D CMAKE_BUILD_TYPE=Release',
-                                                          '-D ENABLE_MPI=ON',
+                                                          '-D ENABLE_MPI={}'.format(enable_mpi),
                                                           '-D ENABLE_OPENMP=ON',
                                                           '-D ENABLE_ARCH_FLAGS=OFF',
-                                                          '-D CXX_COMPILER=mpicxx'],
+                                                          '-D CXX_COMPILER={}'.format(cxx_compiler)],
                                               prefix='/usr/local/mrchem',
                                               url='http://github.com/MRChemSoft/mrchem/archive/v{}.tar.gz'.format(args.mrchem_version),
                                               directory='mrchem-{}'.format(args.mrchem_version))
